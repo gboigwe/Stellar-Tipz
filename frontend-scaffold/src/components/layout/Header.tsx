@@ -122,6 +122,12 @@ const Header: React.FC = () => {
             {t("nav.leaderboard")}
           </Link>
           <Link
+            to="/help"
+            className="text-sm font-bold uppercase tracking-wide hover:underline"
+          >
+            Help
+          </Link>
+          <Link
             to="/dashboard"
             className="text-sm font-bold uppercase tracking-wide hover:underline"
           >

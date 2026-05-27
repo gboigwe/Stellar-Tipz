@@ -21,6 +21,7 @@ const TransactionsPage = lazy(
 );
 const SettingsPage = lazy(() => import("@/features/settings/SettingsPage"));
 const AdminDashboard = lazy(() => import("@/features/admin/AdminDashboard"));
+const HelpPage = lazy(() => import("@/features/help/HelpPage"));
 const NotFoundPage = lazy(() => import("@/features/not-found/NotFoundPage"));
 
 /**
@@ -76,6 +77,10 @@ export const routes: RouteObject[] = [
   {
     path: "/admin",
     element: protect(<AdminDashboard />),
+  },
+  {
+    path: "/help",
+    element: wrap(<HelpPage />),
   },
   {
     path: "*",
