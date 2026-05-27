@@ -109,7 +109,7 @@ fn insert_profile(env: &Env, contract_id: &Address, address: &Address, username:
 #[test]
 fn test_leaderboard_initial_empty() {
     let (env, client, contract_id, _, _) = setup();
-    let board = client.get_leaderboard(&50);
+    let board = client.get_leaderboard(&crate::types::LeaderboardPeriod::AllTime, &50);
     assert_eq!(
         board.len(),
         0,
@@ -340,14 +340,23 @@ fn test_leaderboard_rank_lookup() {
     client.send_tip(&tipper, &alice, &30_000_000, &msg, &false);
     client.send_tip(&tipper, &bob, &10_000_000, &msg, &false);
 
-    assert_eq!(client.get_leaderboard_rank(&carol), Some(1));
-    assert_eq!(client.get_leaderboard_rank(&alice), Some(2));
-    assert_eq!(client.get_leaderboard_rank(&bob), Some(3));
+    assert_eq!(
+        client.get_leaderboard_rank(&crate::types::LeaderboardPeriod::AllTime, &carol),
+        Some(1)
+    );
+    assert_eq!(
+        client.get_leaderboard_rank(&crate::types::LeaderboardPeriod::AllTime, &alice),
+        Some(2)
+    );
+    assert_eq!(
+        client.get_leaderboard_rank(&crate::types::LeaderboardPeriod::AllTime, &bob),
+        Some(3)
+    );
 
     // An address that has never received a tip must not be ranked.
     let stranger = Address::generate(&env);
     assert_eq!(
-        client.get_leaderboard_rank(&stranger),
+        client.get_leaderboard_rank(&crate::types::LeaderboardPeriod::AllTime, &stranger),
         None,
         "unranked address should return None"
     );
@@ -376,7 +385,7 @@ fn test_insert_at_position_zero() {
     insert_profile(&env, &contract_id, &carol, "carol");
     client.send_tip(&tipper, &carol, &50_000_000, &msg, &false); // 5 XLM
 
-    let board = client.get_leaderboard(&50);
+    let board = client.get_leaderboard(&crate::types::LeaderboardPeriod::AllTime, &50);
     assert_eq!(board.len(), 3);
     assert_eq!(
         board.get(0).unwrap().address,
@@ -384,13 +393,13 @@ fn test_insert_at_position_zero() {
         "carol must be at position 0 after receiving the highest tip"
     );
     assert_eq!(
-        client.get_leaderboard_rank(&carol),
+        client.get_leaderboard_rank(&crate::types::LeaderboardPeriod::AllTime, &carol),
         Some(1),
         "carol must be rank 1"
     );
     // Invariant: board is in descending order.
-    assert!(board.get(0).unwrap().total_tips_received >= board.get(1).unwrap().total_tips_received);
-    assert!(board.get(1).unwrap().total_tips_received >= board.get(2).unwrap().total_tips_received);
+    assert!(board.get(0).unwrap().amount >= board.get(1).unwrap().amount);
+    assert!(board.get(1).unwrap().amount >= board.get(2).unwrap().amount);
 }
 
 /// When the leaderboard has exactly one entry and a second creator is added,
@@ -410,7 +419,7 @@ fn test_insert_when_board_has_one_entry() {
         &false,
     ); // 3 XLM
 
-    let board_one = client.get_leaderboard(&50);
+    let board_one = client.get_leaderboard(&crate::types::LeaderboardPeriod::AllTime, &50);
     assert_eq!(board_one.len(), 1, "should have exactly one entry");
     assert_eq!(board_one.get(0).unwrap().address, alice);
 
@@ -425,7 +434,7 @@ fn test_insert_when_board_has_one_entry() {
         &false,
     ); // 1 XLM
 
-    let board_two = client.get_leaderboard(&50);
+    let board_two = client.get_leaderboard(&crate::types::LeaderboardPeriod::AllTime, &50);
     assert_eq!(board_two.len(), 2, "should now have two entries");
     assert_eq!(
         board_two.get(0).unwrap().address,
@@ -463,7 +472,7 @@ fn test_no_duplicates_after_update() {
     assert_eq!(board.get(0).unwrap().address, alice);
     // Cumulative total: 10 + 20 + 30 = 60 XLM in stroops.
     assert_eq!(
-        board.get(0).unwrap().total_tips_received,
+        board.get(0).unwrap().amount,
         60_000_000,
         "total must reflect all three tips"
     );
