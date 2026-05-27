@@ -166,6 +166,8 @@ pub struct RuntimeConfig {
     pub paused: bool,
     pub min_tip_amount: i128,
     pub rate_limit: RateLimitConfig,
+    /// Domain re-verification interval in seconds (default 30 days)
+    pub domain_reverify_secs: u64,
 }
 
 /// All leaderboard periods cached under one key for write-heavy operations.
@@ -301,6 +303,41 @@ pub fn set_min_tip_amount(env: &Env, amount: i128) {
     update_runtime_config(env, |config| {
         config.min_tip_amount = amount;
     });
+}
+
+/// Default domain re-verification interval: 30 days.
+pub const DEFAULT_DOMAIN_REVERIFICATION_INTERVAL: u64 = 2_592_000;
+
+/// Returns the configured domain re-verification interval in seconds.
+pub fn get_domain_reverification_interval(env: &Env) -> u64 {
+    if let Some(config) = get_runtime_config(env) {
+        if config.domain_reverify_secs > 0 {
+            return config.domain_reverify_secs;
+        }
+    }
+    DEFAULT_DOMAIN_REVERIFICATION_INTERVAL
+}
+
+/// Sets the domain re-verification interval in seconds (admin only).
+pub fn set_domain_reverification_interval(env: &Env, interval_secs: u64) {
+    update_runtime_config(env, |config| {
+        config.domain_reverify_secs = interval_secs;
+    });
+}
+
+/// Returns the effective minimum tip for a creator (custom override or global default).
+pub fn get_effective_creator_min_tip(env: &Env, creator: &Address) -> i128 {
+    if let Some(profile) = get_profile_opt(env, creator) {
+        if let Some(custom) = profile.custom_min_tip {
+            return custom;
+        }
+    }
+    get_min_tip_amount(env)
+}
+
+/// Returns a creator's custom minimum tip override from their profile, if set.
+pub fn get_creator_min_tip_override(env: &Env, creator: &Address) -> Option<i128> {
+    get_profile_opt(env, creator).and_then(|p| p.custom_min_tip)
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -1301,6 +1338,10 @@ mod tests {
             registered_at: 0,
             updated_at: 0,
             verification: crate::types::VerificationStatus::default(),
+            domain: String::from_str(&env, ""),
+            domain_verified: false,
+            domain_verified_at: None,
+            custom_min_tip: None,
         };
         env.as_contract(&id, || {
             set_profile(&env, &profile);
@@ -1330,6 +1371,10 @@ mod tests {
             registered_at: 100,
             updated_at: 200,
             verification: crate::types::VerificationStatus::default(),
+            domain: String::from_str(&env, ""),
+            domain_verified: false,
+            domain_verified_at: None,
+            custom_min_tip: None,
         };
         env.as_contract(&id, || {
             set_profile(&env, &profile);
@@ -1478,6 +1523,10 @@ mod tests {
             registered_at: 0,
             updated_at: 0,
             verification: crate::types::VerificationStatus::default(),
+            domain: String::from_str(&env, ""),
+            domain_verified: false,
+            domain_verified_at: None,
+            custom_min_tip: None,
         };
         env.as_contract(&id, || {
             // Set profile

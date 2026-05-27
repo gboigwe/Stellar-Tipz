@@ -63,6 +63,16 @@ export interface Profile {
   registeredAt: number;
   updatedAt: number;
   streak?: number;
+  domain?: string;
+  domainVerified?: boolean;
+  domainVerifiedAt?: number;
+  customMinTip?: string;
+  verification?: {
+    isVerified: boolean;
+    verificationType?: string;
+    verifiedAt?: number;
+    revokedAt?: number;
+  };
 }
 
 /** Tip record from the contract */

@@ -11,6 +11,7 @@ import PageContainer from "../../components/layout/PageContainer";
 import Breadcrumbs from "../../components/shared/Breadcrumbs";
 import AmountDisplay from "../../components/shared/AmountDisplay";
 import CreditBadge from "../../components/shared/CreditBadge";
+import VerificationBadge from "../profile/VerificationBadge";
 import Avatar from "../../components/ui/Avatar";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
@@ -147,6 +148,17 @@ const TipPage: React.FC = () => {
                 <p className="text-sm font-bold text-gray-600">
                   @{creator.username}
                 </p>
+                <VerificationBadge
+                  isVerified={creator.verification?.isVerified ?? false}
+                  verificationType={creator.verification?.verificationType as
+                    | "Identity"
+                    | "SocialMedia"
+                    | "Community"
+                    | undefined}
+                  domain={creator.domain}
+                  domainVerified={creator.domainVerified}
+                  className="mt-2"
+                />
               </div>
             </div>
 
@@ -244,7 +256,11 @@ const TipPage: React.FC = () => {
                 value={amount}
                 onChange={(nextAmount) => setAmount(String(nextAmount))}
               />
-              <TipAmountInput amount={amount} onChange={setAmount} />
+              <TipAmountInput
+                amount={amount}
+                onChange={setAmount}
+                creatorAddress={creator.owner}
+              />
 
               <Textarea
                 label="Message"

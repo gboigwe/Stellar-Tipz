@@ -254,6 +254,53 @@ export const useContract = () => {
     }).catch(() => DEFAULT_MIN_TIP_XLM);
   }, [contractId, wallet.publicKey, server, networkDetails, withLoading, withRetry]);
 
+  const getCreatorMinTip = useCallback(
+    async (creatorAddress: string): Promise<string> => {
+      if (!contractId) {
+        return getMinTipAmount();
+      }
+
+      return withLoading(async () => {
+        const contract = new Contract(contractId);
+        const txBuilder = wallet.publicKey
+          ? await getTxBuilder(
+              wallet.publicKey,
+              BASE_FEE,
+              server,
+              networkDetails.networkPassphrase,
+            )
+          : getSimulationTxBuilder(
+              READ_ONLY_SOURCE,
+              BASE_FEE,
+              networkDetails.networkPassphrase,
+            );
+        const tx = txBuilder
+          .addOperation(
+            contract.call(
+              "get_creator_min_tip",
+              accountToScVal(creatorAddress),
+            ),
+          )
+          .setTimeout(TimeoutInfinite)
+          .build();
+
+        const minTipStroops = await withRetry(() =>
+          simulateTx<number>(tx, server),
+        );
+        return (minTipStroops / 1e7).toString();
+      }).catch(() => getMinTipAmount());
+    },
+    [
+      contractId,
+      getMinTipAmount,
+      wallet.publicKey,
+      server,
+      networkDetails,
+      withLoading,
+      withRetry,
+    ],
+  );
+
   const getRecentTips = useCallback(
     async (creator: string, limit: number, offset: number): Promise<Tip[]> => {
       return withLoading(async () => {
@@ -592,6 +639,7 @@ export const useContract = () => {
     getLeaderboard,
     getStats,
     getMinTipAmount,
+    getCreatorMinTip,
     getRecentTips,
     getCreatorTipCount,
     getTipsByTipper,

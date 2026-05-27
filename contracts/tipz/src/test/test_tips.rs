@@ -72,6 +72,10 @@ fn setup_env() -> (
         registered_at: now,
         updated_at: now,
         verification: crate::types::VerificationStatus::default(),
+        domain: String::from_str(&env, ""),
+        domain_verified: false,
+        domain_verified_at: None,
+        custom_min_tip: None,
     };
     env.as_contract(&contract_id, || {
         env.storage()
@@ -190,6 +194,10 @@ fn test_send_tip_self() {
         registered_at: now,
         updated_at: now,
         verification: crate::types::VerificationStatus::default(),
+        domain: String::from_str(&env, ""),
+        domain_verified: false,
+        domain_verified_at: None,
+        custom_min_tip: None,
     };
     env.as_contract(&contract_id, || {
         env.storage()
@@ -324,6 +332,10 @@ fn test_send_tip_updates_leaderboard() {
         registered_at: now,
         updated_at: now,
         verification: crate::types::VerificationStatus::default(),
+        domain: String::from_str(&env, ""),
+        domain_verified: false,
+        domain_verified_at: None,
+        custom_min_tip: None,
     };
     env.as_contract(&contract_id, || {
         env.storage()

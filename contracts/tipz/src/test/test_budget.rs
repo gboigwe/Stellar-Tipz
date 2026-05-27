@@ -117,6 +117,10 @@ fn insert_profile(env: &Env, contract_id: &Address, address: &Address, username:
             verified_at: None,
             revoked_at: None,
         },
+        domain: String::from_str(env, ""),
+        domain_verified: false,
+        domain_verified_at: None,
+        custom_min_tip: None,
     };
     env.as_contract(contract_id, || {
         env.storage()
@@ -167,6 +171,10 @@ fn fill_leaderboard(env: &Env, contract_id: &Address) -> soroban_sdk::Vec<Addres
                     verified_at: None,
                     revoked_at: None,
                 },
+                domain: String::from_str(env, ""),
+                domain_verified: false,
+                domain_verified_at: None,
+        custom_min_tip: None,
             };
             crate::leaderboard::update_leaderboard(env, &profile);
             i += 1;

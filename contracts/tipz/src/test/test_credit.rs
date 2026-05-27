@@ -49,6 +49,10 @@ fn blank_profile(env: &Env, now: u64) -> Profile {
         registered_at: now,
         updated_at: now,
         verification: crate::types::VerificationStatus::default(),
+        domain: String::from_str(env, ""),
+        domain_verified: false,
+        domain_verified_at: None,
+        custom_min_tip: None,
     }
 }
 

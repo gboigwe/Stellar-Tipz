@@ -40,4 +40,8 @@ pub enum ContractError {
     ProfileNotActive = 32,
     /// Tip message contains invalid control characters
     InvalidMessage = 33,
+    /// Tip amount is below the creator's custom minimum
+    BelowCreatorMinimum = 34,
+    /// Domain format is invalid or empty when required
+    InvalidDomain = 35,
 }

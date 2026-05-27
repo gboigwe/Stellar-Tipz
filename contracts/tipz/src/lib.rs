@@ -44,7 +44,7 @@ use crate::types::{
 
 /// The current contract interface version, stored on-chain during initialization.
 /// Must be incremented manually in source when the contract interface changes.
-pub const CONTRACT_VERSION: u32 = 2;
+pub const CONTRACT_VERSION: u32 = 3;
 
 #[contract]
 pub struct TipzContract;
@@ -710,6 +710,54 @@ impl TipzContract {
         creator: Address,
     ) -> Result<types::DonationPageConfig, ContractError> {
         profile::get_donation_page(&env, &creator)
+    }
+
+    /// Set a custom minimum tip amount for a creator profile.
+    ///
+    /// Pass `0` to reset to the global minimum.
+    pub fn set_min_tip(
+        env: Env,
+        creator: Address,
+        min_amount: i128,
+    ) -> Result<(), ContractError> {
+        profile::set_min_tip(&env, creator, min_amount)
+    }
+
+    /// Return the effective minimum tip for a creator (custom or global default).
+    pub fn get_creator_min_tip(env: Env, creator: Address) -> Result<i128, ContractError> {
+        profile::get_creator_min_tip(&env, &creator)
+    }
+
+    /// Set the domain to verify via stellar.toml (marks verification as pending).
+    pub fn set_domain(
+        env: Env,
+        creator: Address,
+        domain: String,
+    ) -> Result<(), ContractError> {
+        profile::set_domain(&env, creator, domain)
+    }
+
+    /// Admin confirms domain verification after off-chain stellar.toml check.
+    pub fn verify_domain(
+        env: Env,
+        caller: Address,
+        creator: Address,
+    ) -> Result<(), ContractError> {
+        admin::verify_domain(&env, &caller, &creator)
+    }
+
+    /// Configure domain re-verification interval in seconds (admin only).
+    pub fn set_domain_reverify_interval(
+        env: Env,
+        caller: Address,
+        interval_secs: u64,
+    ) -> Result<(), ContractError> {
+        admin::set_domain_reverify_interval(&env, &caller, interval_secs)
+    }
+
+    /// Return the configured domain re-verification interval in seconds.
+    pub fn get_domain_reverify_interval(env: Env) -> u64 {
+        storage::get_domain_reverification_interval(&env)
     }
 
     // ──────────────────────────────────────────────

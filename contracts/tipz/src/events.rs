@@ -428,3 +428,39 @@ pub fn emit_donation_page_updated(env: &Env, creator: &Address) {
         creator.clone(),
     );
 }
+
+// ── Creator min tip events ────────────────────────────────────────────────────
+
+/// Topics : `("profile", "min_tip")`
+pub fn emit_creator_min_tip_updated(env: &Env, creator: &Address, amount: Option<i128>) {
+    env.events().publish(
+        (symbol_short!("profile"), symbol_short!("min_tip")),
+        (creator.clone(), amount),
+    );
+}
+
+// ── Domain verification events ────────────────────────────────────────────────
+
+/// Topics : `("domain", "set")`
+pub fn emit_domain_set(env: &Env, creator: &Address, domain: &String) {
+    env.events().publish(
+        (Symbol::new(env, "domain"), symbol_short!("set")),
+        (creator.clone(), domain.clone()),
+    );
+}
+
+/// Topics : `("domain", "verify")`
+pub fn emit_domain_verified(env: &Env, creator: &Address, domain: &String) {
+    env.events().publish(
+        (Symbol::new(env, "domain"), symbol_short!("verify")),
+        (creator.clone(), domain.clone()),
+    );
+}
+
+/// Topics : `("domain", "expired")`
+pub fn emit_domain_verification_expired(env: &Env, creator: &Address) {
+    env.events().publish(
+        (Symbol::new(env, "domain"), symbol_short!("expired")),
+        creator.clone(),
+    );
+}

@@ -79,6 +79,14 @@ pub struct Profile {
     pub updated_at: u64,
     /// Verification status
     pub verification: VerificationStatus,
+    /// Domain claimed for stellar.toml verification (empty = not set)
+    pub domain: String,
+    /// Whether the domain ownership has been verified by admin
+    pub domain_verified: bool,
+    /// Timestamp when domain was last verified
+    pub domain_verified_at: Option<u64>,
+    /// Creator-specific minimum tip override in stroops (None = use global minimum)
+    pub custom_min_tip: Option<i128>,
 }
 
 /// Profile plus deactivation state for queries (`get_profile`, `get_profile_by_username`).

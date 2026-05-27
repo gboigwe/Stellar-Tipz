@@ -14,7 +14,7 @@ use crate::storage::{self, DataKey};
 use crate::streaks;
 use crate::token;
 use crate::types::Tip;
-use crate::validation::{validate_message, validate_tip_amount};
+use crate::validation::{validate_message, validate_tip_for_creator};
 
 /// Create a new [`Tip`] record and store it in temporary storage.
 pub fn store_tip(
@@ -174,7 +174,7 @@ pub fn send_tip(
         return Err(ContractError::ProfileDeactivated);
     }
 
-    validate_tip_amount(amount, config.min_tip_amount)?;
+    validate_tip_for_creator(env, creator, amount)?;
     validate_message(message)?;
 
     let contract_address = env.current_contract_address();
@@ -275,8 +275,7 @@ pub fn send_tip_on_behalf(
         return Err(ContractError::CannotTipSelf);
     }
 
-    let min_tip = storage::get_min_tip_amount(env);
-    validate_tip_amount(amount, min_tip)?;
+    validate_tip_for_creator(env, creator, amount)?;
     validate_message(message)?;
 
     let contract_address = env.current_contract_address();

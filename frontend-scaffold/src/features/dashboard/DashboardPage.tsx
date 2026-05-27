@@ -72,7 +72,8 @@ const DashboardPage: React.FC = () => {
   }
 
   if (loading && !profile) {
-
+    return <DashboardSkeleton />;
+  }
 
   if (error && !profile) {
     return (
