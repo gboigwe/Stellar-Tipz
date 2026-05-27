@@ -16,8 +16,7 @@ import { useTipNotifications } from "@/hooks/useTipNotifications";
 import { useWalletStore } from "@/store/walletStore";
 import { stroopToXlm } from "@/helpers/format";
 import TipQRCode from "@/features/profile/TipQRCode";
-import Skeleton from "@/components/ui/Skeleton";
-import DashboardStatsSkeleton from "./DashboardStatsSkeleton";
+import DashboardSkeleton from "./DashboardSkeleton";
 import EarningsChart from "./EarningsChart";
 import AchievementNotification from "@/features/achievements/AchievementNotification";
 import { useAchievements } from "@/hooks/useAchievements";
@@ -26,6 +25,7 @@ import EarningsTab from "./EarningsTab";
 import OverviewTab from "./OverviewTab";
 import SettingsTab from "./SettingsTab";
 import TipsTab from "./TipsTab";
+import TipsChart from "./TipsChart";
 import FavoritesList from "./FavoritesList";
 import { DashboardProvider } from "./DashboardContext";
 
@@ -41,6 +41,10 @@ const DashboardPage: React.FC = () => {
   const { latestTip, markSeen, unseenCount } = useTipNotifications(
     profile?.owner,
   );
+  const { newAchievement, dismissNotification } = useAchievements({
+    tipCount: Number(profile?.totalTipsCount ?? 0),
+    streak: profile?.streak ?? 0,
+  });
 
   if (!connected) {
     return (
@@ -68,33 +72,7 @@ const DashboardPage: React.FC = () => {
   }
 
   if (loading && !profile) {
-    return (
-      <PageContainer
-        maxWidth="xl"
-        className="space-y-8 py-10"
-        aria-busy="true"
-      >
-        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Dashboard' }]} />
-        <section className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <Skeleton variant="text" width="200px" height="12px" />
-            <div className="mt-2">
-              <Skeleton variant="text" width="260px" height="34px" />
-            </div>
-          </div>
-          <Skeleton variant="rect" width="220px" height="44px" />
-        </section>
 
-        <DashboardStatsSkeleton />
-
-        <div role="status" aria-busy="true" className="border-4 border-black bg-white p-6 shadow-brutalist space-y-3">
-          <Skeleton variant="text" width="180px" height="18px" />
-          <Skeleton variant="text" width="90%" height="14px" />
-          <Skeleton variant="text" width="80%" height="14px" />
-        </div>
-      </PageContainer>
-    );
-  }
 
   if (error && !profile) {
     return (
@@ -136,11 +114,6 @@ const DashboardPage: React.FC = () => {
 
   const creator = profile;
 
-  const { newAchievement, dismissNotification, unlockedIds } = useAchievements({
-    tipCount: Number(creator.totalTipsCount ?? 0),
-    streak: creator.streak ?? 0,
-  });
-
   const tabs = [
     {
       id: "overview",
@@ -158,6 +131,15 @@ const DashboardPage: React.FC = () => {
           >
             <h2 id="earnings-history-heading" className="text-xl font-black uppercase mb-4">Earnings History</h2>
             <EarningsChart tips={tips} />
+          </section>
+
+          <section
+            role="region"
+            aria-labelledby="tips-analytics-heading"
+            className="border-4 border-black bg-white p-6 shadow-brutalist"
+          >
+            <h2 id="tips-analytics-heading" className="text-xl font-black uppercase mb-4">Tips Analytics</h2>
+            <TipsChart tips={tips} />
           </section>
         </div>
       ),
