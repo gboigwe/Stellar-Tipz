@@ -25,6 +25,7 @@ mod test_pause;
 mod test_profile_query;
 mod test_profiles;
 mod test_property;
+mod test_refund;
 mod test_register;
 mod test_security;
 mod test_stats;
